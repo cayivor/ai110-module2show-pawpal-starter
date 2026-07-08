@@ -1,44 +1,39 @@
 from pawpal_system import Scheduler, Owner, Pet, Task
 
 def main():
-    # 1. Initialize the system brain (Scheduler)
     scheduler = Scheduler()
-
-    # 2. Create an Owner
-    owner = Owner(name="Chelsea")
+    owner = Owner(name="Test Owner")
     scheduler.register_owner(owner)
 
-    # 3. Create two Pets
     pet1 = Pet(name="Bella", species="Dog")
-    pet2 = Pet(name="Oliver", species="Cat")
+    pet2 = Pet(name="Mochi", species="Cat")
     owner.add_pet(pet1)
     owner.add_pet(pet2)
 
-    # 4. Add three Tasks across the pets
-    task1 = Task(description="Morning Walk", due_time="08:00 AM", frequency="Daily")
-    task2 = Task(description="Afternoon Feeding", due_time="02:00 PM", frequency="Daily")
-    task3 = Task(description="Give Medication", due_time="07:00 PM", frequency="Once")
-
+    # purposely scheduling two tasks at the exact same time!
+    task1 = Task(description="Morning Walk", due_time="08:00 AM")
+    task2 = Task(description="Give Medicine", due_time="08:00 AM")
+    task3 = Task(description="Midday Play", due_time="12:00 PM")
+    
     pet1.add_task(task1)
-    pet1.add_task(task2)
-    pet2.add_task(task3)
+    pet2.add_task(task2)
+    pet1.add_task(task3)
 
-    # 5. Fetch and print a clean, readable schedule summary
-    print("=" * 45)
-    print(f"🐾 TODAY'S PAWPAL+ SCHEDULE FOR {owner.name.upper()} 🐾")
-    print("=" * 45)
+    print("\n--- SORTED DAILY SCHEDULE ---")
+    raw_schedule = scheduler.get_daily_schedule(owner)
+    sorted_schedule = scheduler.sort_by_time(raw_schedule)
     
-    schedule = scheduler.get_daily_schedule(owner)
+    for item in sorted_schedule:
+        print(f"[{item['task'].due_time}] {item['pet_name']}: {item['task'].description}")
+
+    print("\n--- RUNNING CONFLICT CHECK ---")
+    warnings = scheduler.check_for_conflicts(sorted_schedule)
     
-    if not schedule:
-        print("🎉 No pending tasks for today!")
+    if warnings:
+        for w in warnings:
+            print(w)
     else:
-        for item in schedule:
-            pet_name = item["pet_name"]
-            task = item["task"]
-            print(f"⏰ [{task.due_time}] - {pet_name}: {task.description} ({task.frequency})")
-            
-    print("=" * 45)
+        print("✅ No conflicts detected!")
 
 if __name__ == "__main__":
     main()
