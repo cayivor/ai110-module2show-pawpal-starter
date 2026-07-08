@@ -100,16 +100,34 @@ else:
 # --- Section 3: Schedule Generation ---
 st.divider()
 st.subheader("🗓️ Daily Planner")
-st.caption("Click below to compile all pending pet activities into a single timeline.")
+st.caption("Click below to compile all pending pet activities into a single chronological timeline.")
 
 if st.button("⚡ Generate Schedule"):
-    daily_schedule = st.session_state.scheduler.get_daily_schedule(st.session_state.owner)
+    # 1. Fetch raw schedule
+    raw_schedule = st.session_state.scheduler.get_daily_schedule(st.session_state.owner)
     
-    if not daily_schedule:
+    if not raw_schedule:
         st.info("🎉 All clear! No pending tasks for your pets today.")
     else:
-        st.markdown(f"### Today's Schedule for {st.session_state.owner.name}'s Household")
-        for item in daily_schedule:
+        # 2. Apply your sorting algorithm!
+        sorted_schedule = st.session_state.scheduler.sort_by_time(raw_schedule)
+        
+        # 3. Apply your conflict detection algorithm!
+        conflict_warnings = st.session_state.scheduler.check_for_conflicts(sorted_schedule)
+        
+        # Display warnings prominently if conflicts exist
+        if conflict_warnings:
+            for warning in conflict_warnings:
+                st.warning(warning)
+        else:
+            st.success("✅ Clean schedule! No task conflicts detected for today.")
+            
+        st.markdown(f"### Today's Timeline for {st.session_state.owner.name}'s Household")
+        
+        # 4. Loop through and display chronologically
+        for item in sorted_schedule:
             p_name = item["pet_name"]
             t_obj = item["task"]
+            
+            # Using a clean layout for each task item
             st.info(f"⏰ **[{t_obj.due_time}]** — **{p_name}**: {t_obj.description} *({t_obj.frequency})*")
