@@ -6,12 +6,20 @@
 
 - Briefly describe your initial UML design.
 - What classes did you include, and what responsibilities did you assign to each?
+My initial UML design consists of four main classes to handle the core functionality of the pet care app:
 
+PawPalSystem: Acts as the central manager, responsible for registering owners and aggregating the daily schedule across all users.
+
+Owner: Represents a user, responsible for holding their profile information and managing a list of their Pet objects.
+
+Pet: Represents an individual animal, responsible for holding its details (name, species) and managing its specific list of Task objects.
+
+Task: Represents a care activity (like a walk or feeding), responsible for tracking its description, due time, and completion status.
 **b. Design changes**
 
 - Did your design change during implementation?
 - If yes, describe at least one change and why you made it.
-
+While the initial class structure remained intact, reviewing the skeleton code with an AI assistant highlighted a potential scaling issue. I noticed that the get_daily_schedule() method in PawPalSystem currently relies on inefficient nested loops (looping through Owners -> Pets -> Tasks) to find pending items. A design change I plan to implement for future scalability is adding unique id attributes to each class. This change will allow the system to eventually map to a relational database, replacing the nested loops with direct, optimized queries.
 ---
 
 ## 2. Scheduling Logic and Tradeoffs
