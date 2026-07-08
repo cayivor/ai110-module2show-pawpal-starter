@@ -5,11 +5,12 @@ from typing import List
 class Task:
     description: str
     due_time: str
+    frequency: str = "Once"  # Added frequency based on new requirements
     is_completed: bool = False
 
     def mark_complete(self) -> None:
         """Marks the task as finished."""
-        pass
+        self.is_completed = True
 
 @dataclass
 class Pet:
@@ -19,11 +20,11 @@ class Pet:
 
     def add_task(self, task: Task) -> None:
         """Assigns a new task to the pet."""
-        pass
+        self.tasks.append(task)
 
     def get_pending_tasks(self) -> List[Task]:
         """Returns all tasks that are not yet completed."""
-        pass
+        return [task for task in self.tasks if not task.is_completed]
 
 @dataclass
 class Owner:
@@ -32,20 +33,30 @@ class Owner:
 
     def add_pet(self, pet: Pet) -> None:
         """Adds a new pet to the owner's profile."""
-        pass
+        self.pets.append(pet)
 
     def get_all_pets(self) -> List[Pet]:
         """Returns all pets owned by this owner."""
-        pass
+        return self.pets
 
 @dataclass
-class PawPalSystem:
+class Scheduler:
     owners: List[Owner] = field(default_factory=list)
 
     def register_owner(self, owner: Owner) -> None:
         """Registers a new owner in the system."""
-        pass
+        self.owners.append(owner)
 
-    def get_daily_schedule(self, owner: Owner) -> List[Task]:
-        """Aggregates all pending tasks for all pets belonging to an owner."""
-        pass
+    def get_daily_schedule(self, owner: Owner) -> List[dict]:
+        """
+        Aggregates all pending tasks for all pets belonging to an owner.
+        Returns a list of dictionaries to map the task to the specific pet.
+        """
+        daily_schedule = []
+        for pet in owner.get_all_pets():
+            for task in pet.get_pending_tasks():
+                daily_schedule.append({
+                    "pet_name": pet.name,
+                    "task": task
+                })
+        return daily_schedule
